@@ -43,6 +43,72 @@ select
 	, (count(*) - count(distinct name)) /  cast(count(*) as decimal) as percent_name_repeated
 from person;
 
+--
+-- combien de film par année
+select *
+from movie
+order by year;
+
+select 
+	year,
+	count(*) as nb_movie
+from movie
+group by year
+order by year;
+
+-- ajouter durée min, max, totale, moyenne
+select 
+	year
+	, count(*) as nb_movie
+	, min(duration) as duration_min
+	, max(duration) as duration_min
+	, avg(duration) as duration_avg
+	, coalesce(sum(duration), 0) as duration_tot
+from movie
+where year >= 1980
+group by year
+order by year;
+
+-- idem trié par nb de films puis par durée totale (décroissant)
+select 
+	year
+	, count(*) as nb_movie
+	, min(duration) as duration_min
+	, max(duration) as duration_min
+	, avg(cast(duration as decimal)) as duration_avg
+	, coalesce(sum(duration), 0) as duration_tot
+from movie
+where year >= 1980
+group by year
+having count(*) >= 20
+order by nb_movie desc, duration_tot desc;
+
+-- compter les personnes par année de naissance, tri par nb décroissant
+--		ajouter un seuil
+select 
+	year(birthdate) as year
+	, count(*) as nb_person
+from person
+where birthdate is not null
+group by year(birthdate)
+order by nb_person desc;
+
+-- nb de films par décénie
+select
+	title
+	, year
+	, year / 10
+	, (year / 10) * 10
+	, cast((year / 10) * 10 as varchar) + '''s'
+from movie;
+
+select
+	year / 10 as decade
+	, cast((year / 10) * 10 as varchar) + '''s' as decade_str
+	, count(*) as nb_movie
+from movie
+group by year / 10
+order by decade;
 -- 
 select *
 from movie
