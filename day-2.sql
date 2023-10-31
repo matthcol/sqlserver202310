@@ -446,3 +446,65 @@ from
 where 
 	m.title = 'Titanic'
 order by actor_name;
+
+-- optimisation:
+with movie_genres as (
+	select
+		m.id
+		, m.title
+		, m.year
+		, m.duration
+		, m.director_id
+		, string_agg(genre, ', ') as genres
+	from
+		movie m
+		join have_genre g on g.movie_id = m.id
+	where 
+		m.title = 'Titanic'
+	group by m.id, m.title,	m.year, m.duration, m.director_id
+)
+select 
+	m.title
+	, m.year
+	, m.duration
+	, m.genres
+	, d.name as director_name
+	, a.name as actor_name
+	, pl.role
+from 
+	movie_genres m
+	join person d on m.director_id = d.id
+	join play pl on pl.movie_id = m.id
+	join person a on pl.actor_id = a.id
+order by actor_name;
+
+-- nb de films, 1ere année, derniere année par réalisateur
+--		+  tri par nb de réalisation décroissante
+
+select 
+	p.id,
+	p.name,
+	count(m.id) as nb_movie,
+	min(m.year) as year_1st_movie,
+	max(m.year) as year_last_movie
+from
+	person p
+	join movie m on m.director_id = p.id
+group by p.id, p.name
+order by nb_movie desc;
+
+--	    + seuil nb réalisation minimale (Ex: 10)
+select 
+	p.id,
+	p.name,
+	count(m.id) as nb_movie,
+	min(m.year) as year_1st_movie,
+	max(m.year) as year_last_movie
+from
+	person p
+	join movie m on m.director_id = p.id
+group by p.id, p.name
+having count(m.id) >= 10
+order by nb_movie desc;
+
+-- pour les motivés, même chose avec acteurs
