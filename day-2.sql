@@ -394,3 +394,55 @@ where
 	where year between 1980 and 1989
 	group by year
 );
+
+
+-- sous requete dans un from
+select 
+	m.title
+	, m.year
+	, m.duration
+	, g.genres
+	, d.name as director_name
+	, a.name as actor_name
+	, pl.role
+from 
+	movie m
+	join person d on m.director_id = d.id
+	join play pl on pl.movie_id = m.id
+	join person a on pl.actor_id = a.id
+	join ( 
+		select 
+			movie_id,
+			string_agg(genre, ', ') as genres
+		from have_genre
+		group by movie_id
+	) g on g.movie_id = m.id
+where 
+	m.title = 'Titanic'
+order by actor_name;
+
+-- CTE: Common Table Expression
+with movie_genres as (
+	select 
+		movie_id,
+		string_agg(genre, ', ') as genres
+	from have_genre
+	group by movie_id
+)
+select 
+	m.title
+	, m.year
+	, m.duration
+	, g.genres
+	, d.name as director_name
+	, a.name as actor_name
+	, pl.role
+from 
+	movie m
+	join person d on m.director_id = d.id
+	join play pl on pl.movie_id = m.id
+	join person a on pl.actor_id = a.id
+	join movie_genres g on g.movie_id = m.id
+where 
+	m.title = 'Titanic'
+order by actor_name;
