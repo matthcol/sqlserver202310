@@ -114,3 +114,31 @@ order by m.year, actor_name;
 
 
 
+-- filmographie Clint Eastwood en tant que réalisateur et acteur
+with person_of_interest as (
+	select id, name
+	from person
+	where name = 'Clint Eastwood'
+)
+select
+	p.id as person_id, 
+	p.name as director_name, 
+	m.id as movie_id, 
+	m.year, 
+	m.title as movie_title
+from 
+	movie m 
+	join person_of_interest p on m.director_id = p.id
+UNION  -- UNION ALL garde les doublons
+select
+	p.id as person_id, 
+	p.name as director_name, 
+	m.id as movie_id, 
+	m.year, 
+	m.title as movie_title
+from 
+	movie m 
+	join play pl on pl.movie_id = m.id 
+	join person_of_interest p on pl.actor_id = p.id
+-- clause order by commune à l'union des 2 requetes
+order by m.year desc, m.title;
